@@ -4,9 +4,16 @@ import { ProgramCard } from "@/components/program-card";
 import { StoryCard } from "@/components/story-card";
 import { ButtonLink } from "@/components/ui/button-link";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { activities, organization, principles, programs, stories } from "@/lib/content";
+import { activities, organization, principles } from "@/lib/content";
+import { getPublicArticles, getPublicPrograms, getPublicSettings } from "@/server/cms/public-content";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [{ items: featuredPrograms, isDemo: programsDemo }, { items: featuredArticles, isDemo: articlesDemo }, settings] = await Promise.all([
+    getPublicPrograms(), getPublicArticles(), getPublicSettings(),
+  ]);
+  const tones = ["moss", "clay", "fern", "sand", "stone"];
+  const whatsappUrl = buildWhatsAppUrl(settings.whatsapp, "Halo, saya ingin berdiskusi tentang program outdoor.");
   return (
     <main id="konten">
       <section className="hero" aria-labelledby="hero-title">
@@ -20,7 +27,7 @@ export default function HomePage() {
         />
         <div className="hero__scrim" />
         <div className="container hero__content">
-          <p className="eyebrow eyebrow--light">Ruang untuk tumbuh di alam</p>
+          <p className="eyebrow eyebrow--light">{settings.organizationName || "Ruang Rimba"} · ruang untuk tumbuh di alam</p>
           <h1 id="hero-title">Bertualang,<br />belajar, dan<br /><em>menjaga alam.</em></h1>
           <p className="hero__description">Pengalaman luar ruang yang membuka ruang untuk kebersamaan, pembelajaran, dan kepedulian.</p>
           <div className="hero__actions">
@@ -39,7 +46,7 @@ export default function HomePage() {
             <p className="eyebrow">Kenalan dengan {organization.name}</p>
             <h2>Pengalaman di alam bisa mengubah cara kita <em>melihat sekitar.</em></h2>
             <div className="intro__bottom">
-              <p>{organization.description}</p>
+              <p>{settings.description || organization.description}</p>
               <ButtonLink href="#nilai" variant="outline">Cerita kami <span aria-hidden="true">↗</span></ButtonLink>
             </div>
           </div>
@@ -53,11 +60,11 @@ export default function HomePage() {
       <section className="program-section section-pad" id="program">
         <div className="container">
           <div className="section-topline"><span>02 / Program</span><span>Dirancang untuk dijalani bersama</span></div>
-          <SectionHeading title="Temukan cara baru untuk terhubung." description="Mulai dari membangun kekompakan hingga mengenal lingkungan lebih dekat. Isi program berikut adalah contoh dan dapat disesuaikan." />
+          <SectionHeading title="Temukan cara baru untuk terhubung." description="Mulai dari membangun kekompakan hingga mengenal lingkungan lebih dekat. Program dapat disesuaikan bersama organisasi." />
           <div className="program-grid">
-            {programs.map((program) => <ProgramCard key={program.number} {...program} />)}
+            {featuredPrograms.slice(0, 5).map((program, index) => <ProgramCard key={program.slug} number={String(index + 1).padStart(2, "0")} title={program.title} description={program.excerpt} image={program.image} alt={program.imageAlt} href={`/program/${program.slug}`} tone={tones[index % tones.length]} />)}
           </div>
-          <div className="program-section__bottom"><p>Program demo, detail kegiatan dan lokasi perlu dikonfirmasi.</p><ButtonLink href="#hubungi" variant="outline">Diskusikan kebutuhanmu <span aria-hidden="true">↗</span></ButtonLink></div>
+          <div className="program-section__bottom"><p>{programsDemo ? "Program berikut merupakan konten demo." : "Program terbit dari CMS organisasi."}</p><ButtonLink href="/program" variant="outline">Jelajahi semua program <span aria-hidden="true">↗</span></ButtonLink></div>
         </div>
       </section>
 
@@ -104,23 +111,19 @@ export default function HomePage() {
       <section className="stories section-pad" id="cerita">
         <div className="container">
           <div className="section-topline"><span>05 / Jurnal alam</span><span>Pengetahuan tumbuh saat dibagikan</span></div>
-          <div className="stories__heading"><SectionHeading title="Catatan kecil dari alam." description="Ruang untuk berbagi pengetahuan, panduan, dan cerita kegiatan. Artikel di bawah ini masih berupa judul demo." /><ButtonLink href="#cerita" variant="outline">Lihat semua cerita <span aria-hidden="true">↗</span></ButtonLink></div>
-          <div className="story-grid">{stories.map((story) => <StoryCard key={story.title} {...story} />)}</div>
+          <div className="stories__heading"><SectionHeading title="Catatan kecil dari alam." description="Ruang untuk berbagi pengetahuan, panduan, dan cerita kegiatan." /><ButtonLink href="/artikel" variant="outline">Lihat semua cerita <span aria-hidden="true">↗</span></ButtonLink></div>
+          <div className="story-grid">{featuredArticles.slice(0, 3).map((article) => <StoryCard key={article.slug} category={article.category} title={article.title} image={article.coverImage} alt={article.coverAlt} href={`/artikel/${article.slug}`} />)}</div>
+          {articlesDemo && <p className="demo-note">Artikel yang ditampilkan adalah konten demo.</p>}
         </div>
       </section>
 
       <section className="contact-band" id="hubungi">
         <div className="container contact-band__inner">
-          <div><p className="eyebrow eyebrow--light">Mari mulai percakapan</p><h2>Ada rencana kegiatan<br />di alam?</h2><p>Kontak resmi organisasi belum tersedia. Lengkapi informasi ini sebelum situs dipublikasikan.</p></div>
-          {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ? (
-            <a className="button button--light contact-band__button" href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent("Halo, saya ingin berdiskusi tentang program outdoor.")}`} aria-label="Hubungi organisasi melalui WhatsApp">
-              Mulai di WhatsApp <span aria-hidden="true">↗</span>
-            </a>
-          ) : (
-            <span className="button button--light contact-band__button contact-band__button--disabled" aria-disabled="true">
-              Tambahkan WhatsApp resmi <span aria-hidden="true">↗</span>
-            </span>
-          )}
+          <div><p className="eyebrow eyebrow--light">Mari mulai percakapan</p><h2>Ada rencana kegiatan<br />di alam?</h2><p>Ceritakan kebutuhan program dan rencana kegiatanmu.</p></div>
+          <div className="contact-band__actions">
+            {whatsappUrl && <a className="button button--light contact-band__button" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Hubungi organisasi melalui WhatsApp, membuka tab baru">Mulai di WhatsApp <span aria-hidden="true">↗</span></a>}
+            <ButtonLink href="/kontak" variant="light" className="contact-band__button">Kirim permintaan program <span aria-hidden="true">↗</span></ButtonLink>
+          </div>
         </div>
       </section>
     </main>

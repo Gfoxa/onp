@@ -1,15 +1,18 @@
 import Link from "next/link";
+import Image from "next/image";
 import { organization, navigation } from "@/lib/content";
 import { ButtonLink } from "@/components/ui/button-link";
+import { getPublicSettings } from "@/server/cms/public-content";
 
-export function Navbar() {
+export async function Navbar() {
+  const settings = await getPublicSettings();
   return (
     <header className="site-header">
       <div className="container site-header__inner">
-        <Link className="brand" href="/" aria-label={`${organization.name}, beranda`}>
-          <span className="brand__mark" aria-hidden="true">R</span>
+        <Link className="brand" href="/" aria-label={`${settings.organizationName || organization.name}, beranda`}>
+          <span className="brand__mark" aria-hidden="true">{settings.logoUrl ? <Image src={settings.logoUrl} alt="" fill sizes="34px" /> : "R"}</span>
           <span className="brand__text">
-            <strong>{organization.name}</strong>
+            <strong>{settings.organizationName || organization.name}</strong>
             <small>Petualangan · Pembelajaran · Alam</small>
           </span>
         </Link>

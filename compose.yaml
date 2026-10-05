@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ruang_rimba
+      POSTGRES_USER: ruang_rimba
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.local}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ruang-rimba-postgres:/var/lib/postgresql/data
+
+volumes:
+  ruang-rimba-postgres:

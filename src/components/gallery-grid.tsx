@@ -4,11 +4,12 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { galleryCategories, type GalleryCategory, type GalleryItem } from "@/lib/gallery";
 
-export function GalleryGrid({ items }: { items: GalleryItem[] }) {
-  const [category, setCategory] = useState<GalleryCategory>("Semua");
+export function GalleryGrid({ items, isDemo = true }: { items: GalleryItem[]; isDemo?: boolean }) {
+  const [category, setCategory] = useState<GalleryCategory | string>("Semua");
   const [selected, setSelected] = useState<GalleryItem | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const visibleItems = category === "Semua" ? items : items.filter((item) => item.category === category);
+  const categories = [...new Set([...galleryCategories, ...items.map((item) => item.category)])];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -20,11 +21,11 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   return (
     <>
       <div className="gallery-filters" aria-label="Filter kategori galeri">
-        {galleryCategories.map((item) => (
+        {categories.map((item) => (
           <button key={item} type="button" aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>
         ))}
       </div>
-      <p className="demo-note">Seluruh gambar di galeri ini adalah ilustrasi demo, bukan dokumentasi kegiatan nyata.</p>
+      {isDemo && <p className="demo-note">Seluruh gambar di galeri ini adalah ilustrasi demo, bukan dokumentasi kegiatan nyata.</p>}
       <div className="gallery-grid" aria-live="polite">
         {visibleItems.map((item) => (
           <button className="gallery-item" type="button" key={item.id} onClick={() => setSelected(item)} aria-label={`Lihat gambar: ${item.title}`}>

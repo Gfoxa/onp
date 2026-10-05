@@ -4,7 +4,7 @@ export type GalleryCategory = (typeof galleryCategories)[number];
 export type GalleryItem = {
   id: string;
   title: string;
-  category: Exclude<GalleryCategory, "Semua">;
+  category: string;
   image: string;
   alt: string;
   caption: string;

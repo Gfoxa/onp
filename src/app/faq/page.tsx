@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { PublicPageHeader } from "@/components/ui/public-page-header";
 import { faqs } from "@/lib/faqs";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pertanyaan Umum",
-  description: "Jawaban awal untuk pertanyaan seputar program outdoor, persiapan, konservasi, dan pemesanan.",
-  alternates: { canonical: "/faq" },
-};
+export const metadata: Metadata = pageMetadata("Pertanyaan Umum", "Jawaban awal untuk pertanyaan seputar program outdoor, persiapan, konservasi, dan pemesanan.", "/faq");
 
 export default function FAQPage() {
   const categories = [...new Set(faqs.map((item) => item.category))];

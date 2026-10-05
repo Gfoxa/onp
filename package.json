@@ -2,27 +2,51 @@
   "name": "outdoor-adventure",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20.9.0" },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/lib/slug.test.ts src/lib/seo.test.ts src/lib/db/sqlite-url.test.ts src/lib/whatsapp.test.ts src/server/auth/roles.test.ts src/server/auth/credentials.test.ts src/server/cms/validation.test.ts src/server/cms/publication.test.ts src/server/contact/validation.test.ts",
+    "test:integration": "node --conditions=react-server --import tsx --test src/server/contact/service.integration.test.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:migrate-postgres": "tsx scripts/migrate-postgres-to-sqlite.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
+    "@prisma/adapter-libsql": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.5",
     "next": "16.3.8",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.3.8",
+    "pg": "^8.23.1",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.1",
+    "mysql2": "^3.24.5"
   }
 }

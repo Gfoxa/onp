@@ -4,12 +4,10 @@ import { PublicPageHeader } from "@/components/ui/public-page-header";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ButtonLink } from "@/components/ui/button-link";
 import { organization, principles } from "@/lib/content";
+import { getPublicTeam } from "@/server/cms/public-content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Tentang Kami",
-  description: "Kenali pendekatan demo Ruang Rimba dalam kegiatan outdoor, pembelajaran alam, dan konservasi.",
-  alternates: { canonical: "/tentang-kami" },
-};
+export const metadata: Metadata = pageMetadata("Tentang Kami", "Kenali pendekatan demo Ruang Rimba dalam kegiatan outdoor, pembelajaran alam, dan konservasi.", "/tentang-kami");
 
 const missions = [
   "Merancang pengalaman luar ruang yang aman, inklusif, dan sesuai kebutuhan kelompok.",
@@ -18,7 +16,8 @@ const missions = [
   "Membuka ruang kolaborasi dan pembelajaran bersama komunitas setempat.",
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const team = await getPublicTeam();
   return (
     <main id="konten">
       <PublicPageHeader eyebrow="Tentang kami" title="Mengenal alam, mengenal cara kita bertumbuh." description="Ruang Rimba adalah identitas demo. Ganti narasi berikut dengan cerita, sejarah, dan konteks organisasi yang telah diverifikasi." breadcrumbs={[{ label: "Tentang Kami" }]} />
@@ -38,7 +37,7 @@ export default function AboutPage() {
         <div className="container"><SectionHeading eyebrow="Nilai yang dijaga" title="Cara kami ingin hadir di alam." description="Nilai berikut adalah titik awal untuk ditinjau bersama tim organisasi." /><div className="public-values-grid">{principles.map((item, index) => <article className="public-value" key={item.title}><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></div>
       </section>
       <section className="team-section section-pad">
-        <div className="container team-section__inner"><div><p className="eyebrow">Tim kami</p><h2>Orang-orang di balik setiap pengalaman.</h2></div><div className="team-placeholder"><span aria-hidden="true">+</span><div><h3>Profil tim belum tersedia</h3><p>Tambahkan foto, nama, peran, dan biografi singkat setelah informasi tim disetujui organisasi.</p></div></div></div>
+        <div className="container"><div className="team-section__inner"><div><p className="eyebrow">Tim kami</p><h2>Orang-orang di balik setiap pengalaman.</h2></div>{team.length === 0 && <div className="team-placeholder"><span aria-hidden="true">+</span><div><h3>Profil tim belum tersedia</h3><p>Tambahkan foto, nama, peran, dan biografi singkat setelah informasi tim disetujui organisasi.</p></div></div>}</div>{team.length > 0 && <div className="public-team-grid">{team.map((member) => <article key={member.id}><div className="public-team-grid__photo">{member.photoUrl ? <Image src={member.photoUrl} alt={member.photoAlt || `Foto ${member.name}`} fill sizes="(max-width: 650px) 80vw, 30vw" /> : <span aria-hidden="true">R</span>}</div><p className="eyebrow">{member.role}</p><h3>{member.name}</h3><p>{member.biography}</p></article>)}</div>}</div>
       </section>
     </main>
   );
